@@ -1,5 +1,9 @@
 from SpacePyTraders import client
 import logging
+import threading
+import time
+import sys
+
 # logging config
 logger = logging.getLogger()
 #logging.CRITICAL / .WARNING
@@ -12,6 +16,21 @@ TOKEN = "c8283f54-c08f-4773-8c40-fc99b0071a19"
 
 api = client.Api(USERNAME, TOKEN)
 print("[GAME API STATUS]", api.game.get_game_status()['status'])
+
+#background thread function (handles running commands)
+commandQueue = []
+def processCommandQueue():
+  while True:
+    if (len(commandQueue) > 0):
+      interpretCommand(commandQueue.pop(0))
+
+def queueCommand(newComm):
+  commandQueue.append(newComm)
+
+def queueAllCommands(newCommList):
+  print(newCommList)
+  for comm in newCommList:
+    queueCommand(comm)
 
 # Plan Helper Functions
 def interpretCommand(line):
@@ -111,5 +130,12 @@ plan = planfile.readlines()
 planfile.close()
 
 commands = list(map(lambda line: line.strip('\n'), plan))
-for cmd in commands:
-  interpretCommand(cmd)
+queueAllCommands(commands)
+
+threadingCQ = threading.Thread(target=processCommandQueue)
+threadingCQ.daemon = True
+threadingCQ.start()
+
+while True:
+  if input("").lower() == 'quit':
+    sys.exit()

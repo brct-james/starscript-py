@@ -12,6 +12,13 @@ Run `launchdev.sh` and pipenv will handle installing dependencies
 
 ## Changelog
 
+### v0.0.3 - Threading & Live Commands
+
+- Added threading
+- Command Queue now runs on a separate thread from main, user can enter their own commands into main
+- - `quit` quit execution
+- - \[Planned] `qc ...` queue following command
+
 ### v0.0.2 - Preliminary command implementation
 
 - Read `.starplan` text files and parse out basic commands
@@ -39,6 +46,8 @@ Run `launchdev.sh` and pipenv will handle installing dependencies
 - `.starsettings` file for remembering settings (e.g. log verbosity, notification preferences, etc.)
 - `.starlog` file for logging longitudinal data (changes will be streamed to captains-log for filing in DB for long-term storage)
 - `.starhistory` file for logging commands and their source (plan \[and how plan was started/assigned], cli, helmsman, etc.), errors, notable events, etc.
+- Script Variables
+- - Save data returned by requests for use in conditional commands
 - Notifications
 - - Will be able to notify user through various avenues when plan (cmd) or script (hard-coded events like wipe or unrecoverable errors) encounters the need to
 - - Integration with Discord as a bot?
