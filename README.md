@@ -16,8 +16,8 @@ Run `launchdev.sh` and pipenv will handle installing dependencies
 
 - Added threading
 - Command Queue now runs on a separate thread from main, user can enter their own commands into main
-- - `quit` quit execution
-- - \[Planned] `qc ...` queue following command
+- - `exit`/`quit`/`stop` quit execution
+- - `: <command>` queue following command (passthrough for plan commands)
 
 ### v0.0.2 - Preliminary command implementation
 

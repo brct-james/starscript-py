@@ -28,33 +28,32 @@ def queueCommand(newComm):
   commandQueue.append(newComm)
 
 def queueAllCommands(newCommList):
-  print(newCommList)
   for comm in newCommList:
     queueCommand(comm)
 
 # Plan Helper Functions
 def interpretCommand(line):
   cmd = line.split()
-  if (cmd[0] == "#"):
+  if (cmd[0] == "#" or cmd[0][0] == "#"):
     # print("Comment: ", cmd[1:])
     pass
   elif (cmd[0] == "get"):
-    print("[GET] ", cmd[1:])
-    if (cmd[1] == "info"):
+    # len(cmd) > # ensures no IndexErrors break threading
+    if (len(cmd) > 1 and cmd[1] == "info"):
       info = api.account.info()['user']
       printLevel(1, "User: " + info['username'])
       printLevel(2, "Credits: " + str(info['credits']))
       printLevel(2, "Ships: " + str(info['shipCount']))
       printLevel(2, "Structures: " + str(info['structureCount']))
-    elif (cmd[1] == "loans"):
+    elif (len(cmd) > 1 and cmd[1] == "loans"):
       loans = api.loans.get_user_loans()['loans']
       for loan in loans:
         printLevel(1, "Loan ID: " + str(loan['id']))
         printLevel(2, "Type: " + str(loan['type']))
         printLevel(2, "Status: " + str(loan['status']))
         printLevel(2, "Repayment Amount: " + str(loan['repaymentAmount']))
-    elif (cmd[1] == "loc"):
-      if (cmd[2] == "info"):
+    elif (len(cmd) > 1 and cmd[1] == "loc"):
+      if (len(cmd) > 3 and cmd[2] == "info"):
         try:
           loc = api.locations.get_location(cmd[3])['location']
         except Exception as e:
@@ -69,7 +68,7 @@ def interpretCommand(line):
           for trait in loc['traits']:
             printLevel(3, str(trait))
           printLevel(2, "Docked Ships: " + str(loc['dockedShips']))
-      elif (cmd[2] == "ships"):
+      elif (len(cmd) > 3 and cmd[2] == "ships"):
         try:
           ships = api.locations.get_ships_at_location(cmd[3])['ships']
         except Exception as e:
@@ -84,7 +83,7 @@ def interpretCommand(line):
               printLevel(2, "Ship Type: " + str(ship['shipType']))
               printLevel(3, "Owner: " + str(ship['username']))
               printLevel(3, "Ship ID: " + str(ship['shipId']))
-      elif (cmd[2] == "market"):
+      elif (len(cmd) > 3 and cmd[2] == "market"):
         try:
           market = api.locations.get_marketplace(cmd[3])['marketplace']
         except Exception as e:
@@ -97,17 +96,23 @@ def interpretCommand(line):
             printLevel(3, "Buy Price: " + str(listing['purchasePricePerUnit']))
             printLevel(3, "Available: " + str(listing['quantityAvailable']))
             printLevel(4, "Volume per Unit: " + str(listing['volumePerUnit']) + ", Spread: " + str(listing['spread']) + ", Price per Unit: " + str(listing['pricePerUnit']))
-    elif (cmd[1] == "ships"):
+      else:
+        print("[Invalid Command] `" + " ".join(cmd) + "`, GET expects 3rd parameter from list [info, ships, market]")
+    elif (len(cmd) > 1 and cmd[1] == "ships"):
       ships = api.ships.get_user_ships()['ships']
       for ship in ships:
         printShipInfo(ship)
-    elif (cmd[1] == "ship"):
+    elif (len(cmd) > 2 and cmd[1] == "ship"):
       try:
         ship = api.ships.get_ship(cmd[2])['ship']
       except Exception as e:
         print("[WARNING] Not a valid ship id, or could not get ship details. ID: (" + str(cmd[2]) + ").")
       else:
         printShipInfo(ship)
+    else:
+      print("[Invalid Command] `" + " ".join(cmd) + "`, GET LOC expects 2nd parameter from list [info, loans, loc, ships, ship]")
+  else:
+      print("[Invalid Command] `" + " ".join(cmd) + "`, valid plan-level commands are: [get]")
 
 def printLevel(level, text):
   res = "".join([" -"]*(level)) + " " + text
@@ -137,5 +142,12 @@ threadingCQ.daemon = True
 threadingCQ.start()
 
 while True:
-  if input("").lower() == 'quit':
+  rawcmd = input("").lower()
+  if rawcmd == 'exit' or rawcmd == 'stop' or rawcmd == 'quit':
     sys.exit()
+  elif rawcmd[0:1] == ':':
+    cmd = rawcmd[1:].strip('\n')
+    queueCommand(cmd)
+  else:
+      print("[Invalid Script Command] `" + rawcmd + "`, valid script-level commands are: [exit, stop, quit]")
+      printLevel(1, "Use a colon (e.g. `:get info`) to input plan-level commands from terminal")
