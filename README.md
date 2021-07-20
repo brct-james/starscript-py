@@ -17,7 +17,12 @@ Run `launchdev.sh` and pipenv will handle installing dependencies
 - Added threading
 - Command Queue now runs on a separate thread from main, user can enter their own commands into main
 - - `exit`/`quit`/`stop` quit execution
-- - `: <command>` queue following command (passthrough for plan commands)
+- - `:<command>` queue following command (passthrough for plan commands)
+- - `help` lists available commands and their functions
+- Added feedback for invalid commands
+- `printLevel` renamed to `printlv`
+- `:help` lists available plan commands and their functions
+- `:help <cmd>` functionality exists, no help text yet - see .starcommands on roadmap (doesn't check for non-existant commands)
 
 ### v0.0.2 - Preliminary command implementation
 
@@ -40,7 +45,10 @@ Run `launchdev.sh` and pipenv will handle installing dependencies
 
 ## Roadmap
 
+- Ensure command parsing case-insensitive (auto-capitalize ids, force all cmds to lower)
 - 1:1 command parity with SDK/API endpoints
+- `.starcommands` file for specifying available commands/arguments and their functions, help text, etc. (allows for easily creating and sharing custom commands for advanced users plus keeps commands from being hardcoded)
+- `:help <cmd>` lists detailed help for the specified cmd
 - `.starsession` file for remembering credentials
 - - Auto-register & run startup script (+notify) on server wipe
 - `.starsettings` file for remembering settings (e.g. log verbosity, notification preferences, etc.)
